@@ -3,22 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace CourseProvider.Functions
+namespace CourseProvider.Functions;
+
+public class GraphQL(ILogger<GraphQL> logger, IGraphQLRequestExecutor executor)
 {
-    public class GraphQL
+    private readonly ILogger<GraphQL> _logger = logger;
+    private readonly IGraphQLRequestExecutor _executor = executor;
+
+    [Function("GraphQL")]
+    public async Task <IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "graphql")] HttpRequest req)
     {
-        private readonly ILogger<GraphQL> _logger;
 
-        public GraphQL(ILogger<GraphQL> logger)
-        {
-            _logger = logger;
-        }
-
-        [Function("GraphQL")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
-        {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-            return new OkObjectResult("Welcome to Azure Functions!");
-        }
+        return await _executor.ExecuteAsync(req);
     }
 }
